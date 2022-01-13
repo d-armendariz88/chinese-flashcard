@@ -1,3 +1,4 @@
+import csv
 import pandas
 import random
 
@@ -15,6 +16,9 @@ class WordList:
         if words_possible < len(self.words_list):
             self.available_list = self.get_limited_group(words_possible)
         self.finished_list = []
+        self.correct_list = []
+        self.correct_needed_help = []
+        self.wrong_words = []
         self.current_word = None
         self.get_random_word()
         self.is_pinyin_shown = False
@@ -24,7 +28,11 @@ class WordList:
         if words_possible < len(self.words_list):
             self.available_list = self.get_limited_group(words_possible)
         self.finished_list = []
+        self.correct_list = []
+        self.correct_needed_help = []
+        self.wrong_words = []
         self.get_random_word()
+        self.is_pinyin_shown = False
 
     def show_pinyin(self):
         self.is_pinyin_shown = not self.is_pinyin_shown
@@ -38,6 +46,7 @@ class WordList:
         return save_list
 
     def get_random_word(self):
+        self.is_pinyin_shown = False
         if(len(self.available_list)==0):
             self.current_word = None
             return
@@ -50,3 +59,34 @@ class WordList:
         self.current_word["is_correct"] = is_correct
         self.finished_list.append(self.current_word)
         self.get_random_word()
+
+    def examine_results(self):
+        self.correct_list = []
+        self.correct_needed_help = []
+        self.wrong_words = []
+        for word in self.finished_list:
+            if word["is_correct"]:
+                if word["sample_used"]:
+                    self.correct_needed_help.append(word)
+                else:
+                    self.correct_list.append(word)
+            else:
+                self.wrong_words.append(word)
+        keys =self.finished_list[0].keys()
+
+        with open('data/correct.csv', 'w', newline='',encoding="utf-8") as output_file:
+            dict_writer = csv.DictWriter(output_file, keys)
+            dict_writer.writeheader()
+            dict_writer.writerows(self.correct_list)
+
+
+        with open('data/correct_with_help.csv', 'w', newline='',encoding="utf-8") as output_file:
+            dict_writer = csv.DictWriter(output_file, keys)
+            dict_writer.writeheader()
+            dict_writer.writerows(self.correct_needed_help)
+
+
+        with open('data/wrong.csv', 'w', newline='',encoding="utf-8") as output_file:
+            dict_writer = csv.DictWriter(output_file, keys)
+            dict_writer.writeheader()
+            dict_writer.writerows(self.wrong_words)

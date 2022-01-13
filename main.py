@@ -1,3 +1,4 @@
+import tkinter.scrolledtext
 from tkinter import *
 from WordList import WordList
 
@@ -22,8 +23,22 @@ def next_card():
         set_card()
     else:
         card_back_frame.pack_forget()
-        overview_frame.pack(padx=1, pady=1)
+        load_results()
 
+def front_to_results():
+    card_front_frame.pack_forget()
+    load_results()
+
+def back_to_results():
+    card_back_frame.pack_forget()
+    load_results()
+
+def load_results():
+    word_list.examine_results()
+    correct_number["text"] = str(len(word_list.correct_list))
+    help_number["text"] = str(len(word_list.correct_needed_help))
+    wrong_number["text"] = str(len(word_list.wrong_words))
+    overview_frame.pack(padx=1, pady=1)
 
 def back_to_menu():
     overview_frame.pack_forget()
@@ -58,7 +73,8 @@ def set_card():
     card_front_canvas.itemconfig(front_sample_pinyin, text="")
 
 def set_overview():
-    pass
+    word_list.examine_results()
+
 
 def show_pinyin_pressed():
     word_list.show_pinyin()
@@ -83,9 +99,9 @@ window.config(padx=50, pady=50, background=BACKGROUND_COLOR)
 
 #main menu
 main_menu_frame = Frame(window, bg=BACKGROUND_COLOR,width=1000,height=725)
-Label(main_menu_frame, text="1000 Mandarin Phrases Flashcards", background=BACKGROUND_COLOR).grid(column=1,row=0)
-card_slider = Scale(main_menu_frame, from_=1, to=1000, background=BACKGROUND_COLOR, highlightthickness=0, orient=HORIZONTAL)
-card_slider.grid(column=1, row=1)
+Label(main_menu_frame, text="1000 Mandarin Phrases Flashcards", background=BACKGROUND_COLOR, font=(FONT_NAME, 60, "bold")).grid(column=1,row=0)
+card_slider = Scale(main_menu_frame, from_=1, to=1000, background=BACKGROUND_COLOR, highlightthickness=0, orient=HORIZONTAL, length=500)
+card_slider.grid(column=0, row=1, columnspan=3)
 start_button = Button(main_menu_frame, text="Start", command=start_review).grid(column=1,row=2)
 main_menu_frame.pack(padx=1,pady=1)
 
@@ -98,9 +114,24 @@ card_back_frame = Frame(window, bg=BACKGROUND_COLOR,width=1000,height=725)
 #overview frame
 overview_frame = Frame(window, bg=BACKGROUND_COLOR,width=1000,height=725)
 Label(overview_frame, text="Results").grid(column=1,row=0)
-Button(overview_frame, text="Back to menu", command=back_to_menu)
 #scrollbar correct
+Label(overview_frame, text="Correct").grid(column=0,row=2)
+correct_number = Label(overview_frame, text="Correct")
+correct_number.grid(column=0,row=3)
+correct_list = tkinter.scrolledtext.ScrolledText(overview_frame, width = 30, height = 8, font=(FONT_NAME, 10, "normal"))
+#scollbar needHelp
+Label(overview_frame, text="Need help").grid(column=1,row=2)
+help_number = Label(overview_frame, text="Correct")
+help_number.grid(column=1,row=3)
+help_list = tkinter.scrolledtext.ScrolledText(overview_frame, width = 30, height = 8, font=(FONT_NAME, 10, "normal"))
 #scrollbar wrong
+Label(overview_frame, text="Wrong").grid(column=2,row=2)
+wrong_number = Label(overview_frame, text="Correct")
+wrong_number.grid(column=2,row=3)
+wrong_list = tkinter.scrolledtext.ScrolledText(overview_frame, width = 30, height = 8, font=(FONT_NAME, 10, "normal"))
+
+Button(overview_frame, text="Back to menu", command=back_to_menu).grid(column=3,row=6)
+
 
 #images
 card_front_image = PhotoImage(file="images/card_front.png")
@@ -113,7 +144,10 @@ example_button = Button(card_front_frame, text="Example Usage",highlightthicknes
 example_button.grid(column=2, row=2)
 flip_button = Button(card_front_frame, text="Flip",highlightthickness=0, command=flip)
 flip_button.grid(column=4, row=2)
-
+front_quit = Button(card_front_frame, text="End Test",highlightthickness=0, command=front_to_results)
+front_quit.grid(column=4, row=3)
+back_quit = Button(card_back_frame, text="End Test",highlightthickness=0, command=back_to_results)
+back_quit.grid(column=3, row=5)
 #back frame
 
 correct_button = Button(card_back_frame, image=correct_button_image,highlightthickness=0, command=correct_selected )
